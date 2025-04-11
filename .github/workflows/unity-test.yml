@@ -1,0 +1,63 @@
+name: Unity Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  test:
+    name: Test in ${{ matrix.testMode }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        testMode:
+          - playmode
+          - editmode
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+      
+      - name: Cache Library folder
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ matrix.testMode }}
+          restore-keys: |
+            Library-
+      
+      - name: Run Unity Tests
+        uses: game-ci/unity-test-runner@v2
+        id: tests
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          testMode: ${{ matrix.testMode }}
+          checkName: ${{ matrix.testMode }} Tests
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: Test-Results-${{ matrix.testMode }}
+          path: ${{ steps.tests.outputs.artifactsPath }}
+      
+      - name: Save Test Results as Repository Artifact
+        if: always()
+        run: |
+          mkdir -p test-results/${{ matrix.testMode }}
+          cp -r ${{ steps.tests.outputs.artifactsPath }}/* test-results/${{ matrix.testMode }}/
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add test-results/${{ matrix.testMode }}
+          git commit -m "Add ${{ matrix.testMode }} test results" || echo "No changes to commit"
+          git push origin HEAD:refs/heads/test-results -f
