@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.UIElements;
 using System.IO;
+using UnityEditor.SceneManagement;
 
 /// <summary>
 /// Simple editor utility for creating a complete game scene with player and NPC
@@ -133,7 +134,7 @@ public class GameSceneBuilder : EditorWindow
         
         if (uss != null)
         {
-            uiDocument.styleSheets.Add(uss);
+            uiDocument.rootVisualElement.styleSheets.Add(uss);
         }
         
         // Add ChatUIController component
