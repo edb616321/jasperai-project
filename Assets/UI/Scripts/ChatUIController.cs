@@ -8,15 +8,30 @@ using UnityEngine.UIElements;
 public class ChatUIController : MonoBehaviour
 {
     [SerializeField] private UIDocument uiDocument;
+    [SerializeField] private GameObject chatContainer; // Container to activate/deactivate
     
     // UI Elements
     private TextField inputField;
     private Button sendButton;
     private ScrollView scrollView;
     private VisualElement chatMessages;
+    private Label npcNameLabel;
+    
+    // Current conversation state
+    private NPC currentNPC;
+    private bool isInConversation = false;
     
     // Store chat history
     private List<ChatMessage> messageHistory = new List<ChatMessage>();
+    
+    private void Start()
+    {
+        // Hide chat UI at start
+        if (chatContainer != null)
+        {
+            chatContainer.SetActive(false);
+        }
+    }
     
     private void OnEnable()
     {
@@ -34,13 +49,11 @@ public class ChatUIController : MonoBehaviour
         sendButton = root.Q<Button>("send-button");
         scrollView = root.Q<ScrollView>("chat-scroll-view");
         chatMessages = root.Q<VisualElement>("chat-messages");
+        npcNameLabel = root.Q<Label>("chat-title");
         
         // Register event handlers
         sendButton.clicked += OnSendButtonClicked;
         inputField.RegisterCallback<KeyDownEvent>(OnInputFieldKeyDown);
-        
-        // Add welcome message
-        AddSystemMessage("Welcome to the chat! How can I help you today?");
         
         Debug.Log("Chat UI initialized");
     }
@@ -53,6 +66,59 @@ public class ChatUIController : MonoBehaviour
             
         if (inputField != null)
             inputField.UnregisterCallback<KeyDownEvent>(OnInputFieldKeyDown);
+    }
+    
+    /// <summary>
+    /// Start a conversation with an NPC
+    /// </summary>
+    public void StartConversation(NPC npc)
+    {
+        currentNPC = npc;
+        isInConversation = true;
+        
+        // Clear previous messages
+        ClearMessages();
+        
+        // Set NPC name in the UI
+        if (npcNameLabel != null)
+        {
+            npcNameLabel.text = currentNPC.NPCName;
+        }
+        
+        // Show chat UI
+        if (chatContainer != null)
+        {
+            chatContainer.SetActive(true);
+        }
+        
+        // Add greeting message
+        AddSystemMessage("Press ESC to exit conversation");
+        
+        // Add NPC greeting through normal NPC response flow
+        string greeting = currentNPC.GetResponse("greeting");
+        AddMessageToUI(greeting, ChatMessage.MessageType.AI);
+        
+        // Focus input field
+        inputField?.Focus();
+        
+        Debug.Log($"Started conversation with {currentNPC.NPCName}");
+    }
+    
+    /// <summary>
+    /// End the current conversation
+    /// </summary>
+    public void EndConversation()
+    {
+        isInConversation = false;
+        currentNPC = null;
+        
+        // Hide chat UI
+        if (chatContainer != null)
+        {
+            chatContainer.SetActive(false);
+        }
+        
+        Debug.Log("Ended conversation");
     }
     
     private void OnSendButtonClicked()
@@ -72,6 +138,9 @@ public class ChatUIController : MonoBehaviour
     
     private void SendUserMessage()
     {
+        if (!isInConversation || currentNPC == null)
+            return;
+            
         string messageText = inputField.text.Trim();
         
         if (string.IsNullOrEmpty(messageText))
@@ -87,26 +156,17 @@ public class ChatUIController : MonoBehaviour
         inputField.value = string.Empty;
         inputField.Focus();
         
-        // Log message for debugging
-        Debug.Log($"User message: {messageText}");
-        
-        // Process the message (simple echo response for now)
-        ProcessMessage(messageText);
-    }
-    
-    private void ProcessMessage(string userMessage)
-    {
-        // Simple echo response for testing - this would be replaced with actual AI logic
-        string response = $"You said: {userMessage}";
+        // Get response from NPC
+        string response = currentNPC.GetResponse(messageText);
         
         // Add a slight delay to feel more natural
-        Invoke(nameof(AddResponseMessage), 0.8f);
+        Invoke(nameof(AddDelayedResponse), 0.8f);
         
         // Store response for delayed method
         PlayerPrefs.SetString("temp_response", response);
     }
     
-    private void AddResponseMessage()
+    private void AddDelayedResponse()
     {
         string response = PlayerPrefs.GetString("temp_response", "I didn't catch that.");
         
@@ -115,9 +175,6 @@ public class ChatUIController : MonoBehaviour
         
         // Store in history
         messageHistory.Add(new ChatMessage(response, ChatMessage.MessageType.AI));
-        
-        // Log for debugging
-        Debug.Log($"AI response: {response}");
     }
     
     private void AddSystemMessage(string message)
@@ -163,6 +220,16 @@ public class ChatUIController : MonoBehaviour
         
         // Scroll to the bottom to show latest message
         scrollView.scrollOffset = new Vector2(0, float.MaxValue);
+    }
+    
+    private void ClearMessages()
+    {
+        if (chatMessages != null)
+        {
+            chatMessages.Clear();
+        }
+        
+        messageHistory.Clear();
     }
 }
 
