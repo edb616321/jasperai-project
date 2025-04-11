@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="chat-container" class="chat-container">
+        <ui:VisualElement name="chat-header" class="chat-header">
+            <ui:Label text="JasperAI Chat" name="chat-title" class="chat-title" />
+        </ui:VisualElement>
+        
+        <ui:ScrollView name="chat-scroll-view" class="chat-scroll-view">
+            <ui:VisualElement name="chat-messages" class="chat-messages">
+                <!-- Messages will be added here dynamically -->
+            </ui:VisualElement>
+        </ui:ScrollView>
+        
+        <ui:VisualElement name="chat-input-container" class="chat-input-container">
+            <ui:TextField name="chat-input-field" class="chat-input-field" placeholder="Type your message..." />
+            <ui:Button text="Send" name="send-button" class="send-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,118 @@
+/* Main container styles */
+.chat-container {
+    width: 100%;
+    height: 100%;
+    background-color: #202124;
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+/* Header styles */
+.chat-header {
+    height: 50px;
+    background-color: #4285F4;
+    padding: 10px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border-bottom-width: 1px;
+    border-color: #555;
+}
+
+.chat-title {
+    color: white;
+    font-size: 18px;
+    -unity-font-style: bold;
+    margin: 0;
+}
+
+/* Chat messages area */
+.chat-scroll-view {
+    flex-grow: 1;
+    background-color: #202124;
+}
+
+.chat-messages {
+    flex-grow: 1;
+    padding: 15px;
+    flex-direction: column;
+}
+
+/* Message styles */
+.chat-message {
+    padding: 10px 15px;
+    margin: 5px 0;
+    border-radius: 5px;
+    max-width: 80%;
+    align-self: flex-start;
+}
+
+.user-message {
+    align-self: flex-end;
+    background-color: #4285F4;
+    color: white;
+}
+
+.npc-message {
+    background-color: #3c3c3c;
+    color: white;
+}
+
+.system-message {
+    align-self: center;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #aaa;
+    font-size: 12px;
+    padding: 5px 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+
+.timestamp {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 5px;
+}
+
+/* Input area */
+.chat-input-container {
+    flex-direction: row;
+    background-color: #303134;
+    padding: 10px;
+    border-top-width: 1px;
+    border-color: #555;
+}
+
+.chat-input-field {
+    flex-grow: 1;
+    height: 40px;
+    margin-right: 10px;
+    border-radius: 20px;
+    background-color: #3c3c3c;
+    color: white;
+    padding: 5px 15px;
+    border-width: 0;
+}
+
+.chat-input-field:focus {
+    border-color: #4285F4;
+    border-width: 1px;
+}
+
+.send-button {
+    width: 80px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: #4285F4;
+    color: white;
+    border-width: 0;
+    -unity-font-style: bold;
+}
+
+.send-button:hover {
+    background-color: #5294FF;
+}
+
+.send-button:active {
+    background-color: #3268C8;
+}
